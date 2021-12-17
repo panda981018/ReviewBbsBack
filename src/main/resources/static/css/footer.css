@@ -1,9 +1,0 @@
-#footer {
-    border-top: 2px solid #e5e5e5;
-}
-
-#insta, #call {
-    width: 2rem;
-    height: 2rem;
-    object-fit: scale-down;
-}
