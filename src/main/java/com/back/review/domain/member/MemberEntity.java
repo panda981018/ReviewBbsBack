@@ -76,8 +76,8 @@ public class MemberEntity {
             return MemberDto.builder()
                     .id(id)
                     .username(username)
+                    .password(password)
                     .nickname(nickname)
-                    .gender(gender == Gender.MALE ? Gender.MALE.getValue() : Gender.FEMALE.getValue())
                     .role(Role.ADMIN.getTitle())
                     .regDate(regDateStr)
                     .build();

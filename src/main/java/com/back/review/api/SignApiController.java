@@ -17,12 +17,12 @@ public class SignApiController {
     private final MemberService memberService;
 
     @PostMapping("/check/email")
-    public HashMap<String, Boolean> checkEmail(@RequestBody HashMap<String, String> usernameObj) {
+    public Boolean checkEmail(@RequestBody HashMap<String, String> usernameObj) {
         return memberService.checkEmail(usernameObj.get("username"));
     }
 
     @PostMapping("/check/nickname")
-    public HashMap<String, Boolean> checkNickname(@RequestBody HashMap<String, String> nicknameObj) throws SQLException {
+    public Boolean checkNickname(@RequestBody HashMap<String, String> nicknameObj) throws SQLException {
         return memberService.checkNickname(nicknameObj.get("id"), nicknameObj.get("nickname"), nicknameObj.get("view"));
     }
 }

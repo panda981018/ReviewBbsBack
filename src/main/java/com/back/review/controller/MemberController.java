@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
@@ -21,6 +22,11 @@ public class MemberController { // member
 
     private final MemberService memberService;
     private final CategoryService categoryService;
+
+    @GetMapping("/getUser")
+    public MemberDto getUser(@RequestParam String username) throws SQLException {
+        return memberService.getByUsername(username);
+    }
 
     @GetMapping("/home")
     public String memberHome(HttpSession session) {
@@ -41,17 +47,17 @@ public class MemberController { // member
     }
 
     // 내정보에서 update 클릭했을 때
-    @PostMapping("/info")
-    public String postMyInfo(HttpSession session, MemberDto memberDto){
-
-        memberService.updateMember(session, memberDto);
-        MemberDto oldDto = (MemberDto) session.getAttribute("memberInfo");
-        if (oldDto.getRole().equals(Role.ADMIN.getTitle())) {
-            return "redirect:/admin/home";
-        } else if (oldDto.getRole().equals(Role.MEMBER.getTitle())) {
-            return "redirect:/member/home";
-        } else {
-            return "redirect:/";
-        }
-    }
+//    @PostMapping("/info")
+//    public String postMyInfo(HttpSession session, MemberDto memberDto){
+//
+//        memberService.updateMember(session, memberDto);
+//        MemberDto oldDto = (MemberDto) session.getAttribute("memberInfo");
+//        if (oldDto.getRole().equals(Role.ADMIN.getTitle())) {
+//            return "redirect:/admin/home";
+//        } else if (oldDto.getRole().equals(Role.MEMBER.getTitle())) {
+//            return "redirect:/member/home";
+//        } else {
+//            return "redirect:/";
+//        }
+//    }
 }
