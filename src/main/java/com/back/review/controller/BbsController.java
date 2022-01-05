@@ -69,38 +69,6 @@ public class BbsController {
         return "redirect:/post/bbs?category=" + bbsDto.getCategoryId();
     }
 
-    @GetMapping("/bbs/view") // 게시글 보기
-    public String viewBbs(@RequestParam(required = false) String id, HttpSession session, Model model) throws Exception {
-        BbsDto bbs = null;
-        long viewCategoryId = 0L;
-        List<ReplyDto> replies;
-
-        HashMap<String, Object> dataMap = bbsService.getBbs(Long.parseLong(id));
-        MemberDto memberDto = (MemberDto) session.getAttribute("memberInfo");
-        HeartDto heartDto = heartService.findHeartObject(Long.parseLong(id), memberDto.getId());
-
-        if (dataMap.get("bbsDto") instanceof BbsDto) {
-            bbs = (BbsDto) dataMap.get("bbsDto");
-            viewCategoryId = bbs.getCategoryId() - 1;
-        }
-
-        assert bbs != null;
-        boolean favDto = favoriteService.findFavObject(bbs.getLatitude(), bbs.getLongitude(), memberDto.getId());
-
-        if (dataMap.get("replies") instanceof List<?>) {
-            replies = replyService.getReplies(Long.parseLong(id));
-            if (!replies.isEmpty()) {
-                model.addAttribute("replyList", replies);
-            }
-        }
-        model.addAttribute("bbs", bbs);
-        model.addAttribute("categoryId", viewCategoryId);
-        model.addAttribute("heartObj", heartDto);
-        model.addAttribute("favObj", favDto);
-
-        return "post/view-bbs";
-    }
-
     @GetMapping("/bbs/update") // 수정하는 페이지
     public String editBbs(@RequestParam(required = false) String id, Model model) throws Exception {
 

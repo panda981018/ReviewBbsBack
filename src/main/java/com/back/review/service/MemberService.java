@@ -4,12 +4,14 @@ import com.back.review.domain.member.MemberEntity;
 import com.back.review.domain.member.MemberQueryRepository;
 import com.back.review.domain.member.MemberRepository;
 import com.back.review.dto.MemberDto;
+import com.back.review.enumclass.Role;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -18,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+import static com.back.review.conf.AppConfig.localDateTimeToString;
+
 @Service
 @AllArgsConstructor
 public class MemberService {
@@ -25,7 +29,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final MemberQueryRepository memberQueryRepository;
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Long signUp(MemberDto memberDto) { // 회원가입
 
         MemberEntity memberEntity = memberDto.toEntity();
@@ -52,30 +56,25 @@ public class MemberService {
         return result;
     }
 
-//    public void updateMember(HttpSession session, MemberDto memberDto) { // 회원 정보 update
-//
-//        MemberEntity member = memberRepository.findByUsername(memberDto.getUsername())
-//                .orElseThrow(() -> new UsernameNotFoundException("해당 회원은 없습니다. 다시 시도 해주십시오."));
-//
-//        if (memberDto.getPassword().isEmpty()) { // 비밀번호를 수정하지 않은 경우
-//            memberDto.setId(member.getId());
-//            memberDto.setPassword(member.getPassword());
-//        } else { // 비밀번호를 수정한 경우
-//            String cryptoPassword = passwordEncoder.encode(memberDto.getPassword());
-//            memberDto.setId(member.getId());
-//            memberDto.setPassword(cryptoPassword);
-//        }
-//
-//        memberDto.setRole(member.getRole() == Role.ADMIN ? Role.ADMIN.getValue() : Role.MEMBER.getValue());
-//        memberDto.setRegDate(localDateTimeToString(member.getRegDate()));
-//
-//        memberRepository.save(memberDto.toEntity());
-//
-//        MemberDto myInfo = (MemberDto) session.getAttribute("memberInfo");
-//        if (myInfo.getRole().equals(Role.MEMBER.getTitle())) {
-//            session.setAttribute("memberInfo", memberRepository.getById(myInfo.getId()).toDto());
-//        }
-//    }
+    @Transactional(rollbackFor = Exception.class)
+    public Long updateMember(MemberDto memberDto) { // 회원 정보 update
+
+        MemberEntity member = memberRepository.findByUsername(memberDto.getUsername())
+                .orElse(null);
+
+        if (memberDto.getPassword().isEmpty()) { // 비밀번호를 수정하지 않은 경우
+            memberDto.setPassword(member.getPassword());
+        }
+        memberDto.setId(member.getId());
+        memberDto.setRole(member.getRole() == Role.ADMIN ? Role.ADMIN.getValue() : Role.MEMBER.getValue());
+        memberDto.setRegDate(localDateTimeToString(member.getRegDate()));
+
+        MemberEntity updateMemberEntity = memberDto.toEntity();
+
+        memberRepository.save(updateMemberEntity);
+
+        return updateMemberEntity.getId();
+    }
 
     public MemberDto getByUsername(String username) throws SQLException { // 이름으로 회원정보 get
 

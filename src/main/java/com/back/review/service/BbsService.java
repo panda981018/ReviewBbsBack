@@ -14,6 +14,7 @@ import com.back.review.domain.bbs.BbsQueryRepository;
 import com.back.review.domain.bbs.BbsRepository;
 import com.back.review.domain.member.MemberRepository;
 import com.back.review.dto.BbsDto;
+import com.back.review.dto.ReplyDto;
 import com.querydsl.core.Tuple;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -91,10 +92,14 @@ public class BbsService {
         BbsEntity bbsEntity = bbsRepository.findById(bbsId)
                 .orElseThrow(() -> new Exception("POST NOT EXIST"));
         BbsDto bbsDto = bbsEntity.toDto();
-
         dataMap.put("bbsDto", bbsDto);
+
         List<ReplyEntity> replies = bbsEntity.getReplies();
-        dataMap.put("replies", replies);
+        List<ReplyDto> replyDtos = new ArrayList<>();
+        for (ReplyEntity reply : replies) {
+            replyDtos.add(reply.toDto());
+        }
+        dataMap.put("replies", replyDtos);
 
         return dataMap;
     }
@@ -108,10 +113,11 @@ public class BbsService {
     }
 
     // 카테고리 상관없이 찾기
-    public List<BbsDto> findAll(Pageable pageable) {
+    public List<BbsDto> getHomeBbs(Pageable pageable) {
         Page<BbsEntity> paging = bbsRepository.findAll(pageable);
         List<BbsEntity> bbsEntities = paging.getContent();
         List<BbsDto> bbsDtoList = new ArrayList<>();
+
         for (BbsEntity bbs : bbsEntities) {
             bbsDtoList.add(bbs.toDto());
         }

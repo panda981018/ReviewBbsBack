@@ -24,4 +24,9 @@ public class MemberApiController {
     public Long signUp(@RequestBody MemberDto memberDto) {
         return memberService.signUp(memberDto);
     }
+
+    @PostMapping("/update")
+    public Long updateMyInfo(@RequestBody MemberDto memberDto) {
+        return memberService.updateMember(memberDto);
+    }
 }

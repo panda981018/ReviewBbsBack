@@ -1,7 +1,10 @@
 package com.back.review.api;
 
 import com.back.review.dto.BbsDto;
+import com.back.review.dto.HeartDto;
 import com.back.review.service.BbsService;
+import com.back.review.service.FavoriteService;
+import com.back.review.service.HeartService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -16,8 +19,10 @@ import java.util.List;
 public class BbsApiController {
 
     private final BbsService bbsService;
+    private final HeartService heartService;
+    private final FavoriteService favoriteService;
 
-    @GetMapping("/get")
+    @GetMapping("/get/all")
     public HashMap<String, Object> getAllBbsList(@RequestParam String category, // 카테고리 번호
                                                  @RequestParam int perPage, // 한페이지당 보여줄 데이터의 개수
                                                  @RequestParam int page,
@@ -60,15 +65,25 @@ public class BbsApiController {
     }
 
     @GetMapping("/get/home")
-    public HashMap<String, List<BbsDto>> getMemberHomeData(@RequestParam String perPage) {
+    public List<BbsDto> getMemberHomeData(@RequestParam String perPage) {
         PageRequest pageRequest =
                 PageRequest.of(0, Integer.parseInt(perPage), Sort.by(Sort.Direction.DESC, "bbsDate"));
+        return bbsService.getHomeBbs(pageRequest);
+    }
 
-        List<BbsDto> bbsDtoList = bbsService.findAll(pageRequest);
-        HashMap<String, List<BbsDto>> jsonMap = new HashMap<>();
-        jsonMap.put("data", bbsDtoList);
+    @GetMapping("/view")
+    public HashMap<String, Object> viewBbs(@RequestParam Long bbsId, @RequestParam Long memberId) throws Exception {
+        HashMap<String, Object> dataMap = bbsService.getBbs(bbsId);
+        HeartDto heartDto = heartService.findHeartObject(bbsId, memberId);
 
-        return jsonMap;
+        BbsDto bbs = (BbsDto) dataMap.get("bbsDto");
+        boolean favDto = favoriteService.findFavObject(bbs.getLatitude(), bbs.getLongitude(), memberId);
+
+        dataMap.put("categoryId", ((BbsDto) dataMap.get("bbsDto")).getCategoryId() - 1);
+        dataMap.put("heartObj", heartDto);
+        dataMap.put("favObj", favDto);
+
+        return dataMap;
     }
 
     @PostMapping("/update/views") // 조회수 업데이트 기능
